@@ -23,7 +23,7 @@ class LoadBoardApp extends StatelessWidget {
 }
 
 // ==========================================
-// 1. ЭКРАН SMS-АВТОРИЗАЦИИ (БЕЗ ИМЕНИ)
+// 1. ЭКРАН SMS-АВТОРИЗАЦИИ
 // ==========================================
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -216,6 +216,13 @@ class _HomeScreenState extends State<HomeScreen> {
   String selectedTransport = 'Все';
   late String lang;
 
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _originController = TextEditingController();
+  final TextEditingController _destController = TextEditingController();
+  final TextEditingController _timeController = TextEditingController();
+  final TextEditingController _reqController = TextEditingController();
+  final TextEditingController _priceController = TextEditingController();
+
   // Демо-данные опубликованных грузов
   List<Map<String, dynamic>> loads = [
     {
@@ -272,9 +279,13 @@ class _HomeScreenState extends State<HomeScreen> {
           TextButton(
             onPressed: () {
               setState(() {
-                if (lang == 'tm') lang = 'ru';
-                else if (lang == 'ru') lang = 'en';
-                else lang = 'tm';
+                if (lang == 'tm') {
+                  lang = 'ru';
+                } else if (lang == 'ru') {
+                  lang = 'en';
+                } else {
+                  lang = 'tm';
+                }
               });
             },
             child: Text(
@@ -286,7 +297,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Column(
         children: [
-          // 1. Переключатель Роли (DAT Style)
+          // 1. Переключатель Роли
           Container(
             color: Colors.white,
             padding: const EdgeInsets.all(10),
@@ -314,7 +325,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
 
           if (!isShipperMode) ...[
-            // 2. Имитация Карта Google Maps + Слайдер Радиуса
+            // 2. Имитация Карты Google Maps + Слайдер Радиуса
             Container(
               height: 140,
               width: double.infinity,
@@ -341,7 +352,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-            // Слайдер радиуса (500 м - 100 км)
+            // Слайдер радиуса
             Container(
               color: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -369,7 +380,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-            // Фильтр 6 видов транспорта
+            // Фильтр транспорта
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -440,7 +451,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ElevatedButton.icon(
                                         style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
                                         icon: const Icon(Icons.call),
-                                        label: const Text('ПОЗВОНИТЬ'),
+                                        label: Text('ПОЗВОНИТЬ (${item['phone']})'),
                                         onPressed: () {},
                                       ),
                                   ],
@@ -462,17 +473,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     const Text('Подать новый груз', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 12),
-                    const TextField(decoration: InputDecoration(labelText: 'Что везем? (например: Коробки, Оборудование)', border: OutlineInputBorder())),
+                    TextField(controller: _titleController, decoration: const InputDecoration(labelText: 'Что везем? (например: Коробки, Оборудование)', border: OutlineInputBorder())),
                     const SizedBox(height: 10),
-                    const TextField(decoration: InputDecoration(labelText: 'Откуда забрать (город, этрап, точка)', border: OutlineInputBorder())),
+                    TextField(controller: _originController, decoration: const InputDecoration(labelText: 'Откуда забрать (город, этрап, точка)', border: OutlineInputBorder())),
                     const SizedBox(height: 10),
-                    const TextField(decoration: InputDecoration(labelText: 'Куда доставить', border: OutlineInputBorder())),
+                    TextField(controller: _destController, decoration: const InputDecoration(labelText: 'Куда доставить', border: OutlineInputBorder())),
                     const SizedBox(height: 10),
-                    const TextField(decoration: InputDecoration(labelText: 'Время забора и доставки', border: OutlineInputBorder())),
+                    TextField(controller: _timeController, decoration: const InputDecoration(labelText: 'Время забора и доставки', border: OutlineInputBorder())),
                     const SizedBox(height: 10),
-                    const TextField(decoration: InputDecoration(labelText: 'Требования к машине (например: Sienna, крытая Газель)', border: OutlineInputBorder())),
+                    TextField(controller: _reqController, decoration: const InputDecoration(labelText: 'Требования к машине (например: Sienna, крытая Газель)', border: OutlineInputBorder())),
                     const SizedBox(height: 10),
-                    const TextField(decoration: InputDecoration(labelText: 'Оплата (TMT)', border: OutlineInputBorder()), keyboardType: TextInputType.number),
+                    TextField(controller: _priceController, decoration: const InputDecoration(labelText: 'Оплата (TMT)', border: OutlineInputBorder()), keyboardType: TextInputType.number),
                     const SizedBox(height: 16),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16), backgroundColor: Colors.orange[800], foregroundColor: Colors.white),
@@ -480,10 +491,31 @@ class _HomeScreenState extends State<HomeScreen> {
                         setState(() {
                           loads.add({
                             'id': DateTime.now().toString(),
-                            'title': 'Новый груз (Моё)',
-                            'origin': 'Ашхабад',
-                            'dest': 'Мары',
-                            'pickupTime': 'Сегодня',
+                            'title': _titleController.text.isEmpty ? 'Новый груз' : _titleController.text,
+                            'origin': _originController.text.isEmpty ? 'Ашхабад' : _originController.text,
+                            'dest': _destController.text.isEmpty ? 'Мары' : _destController.text,
+                            'pickupTime': _timeController.text.isEmpty ? 'Сегодня' : _timeController.text,
                             'deliverTime': 'Завтра',
                             'transport': '🚗 На машине',
-                            'com
+                            'comment': _reqController.text,
+                            'price': '${_priceController.text.isEmpty ? '100' : _priceController.text} TMT',
+                            'phone': widget.userPhone,
+                            'distanceKm': 0.5,
+                            'isMyLoad': true,
+                          });
+                          isShipperMode = false;
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Груз успешно опубликован!')));
+                      },
+                      child: const Text('ОПУБЛИКОВАТЬ ГРУЗ', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
