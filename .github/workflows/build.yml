@@ -29,11 +29,11 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Build APK
-        run: flutter build apk --release
+      - name: Build Debug APK
+        run: flutter build apk --debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: load-board-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: load-board-app
+          path: build/app/outputs/flutter-apk/app-debug.apk
